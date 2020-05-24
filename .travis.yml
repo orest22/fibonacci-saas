@@ -5,22 +5,33 @@ services:
     - docker
 
 before_install:
-    - docker build -t oresthazda/fibonacci-client-test -f ./client/Dockerfile.dev ./client 
+    - docker build -t $DOCKER_ID/fibonacci-client-test -f ./client/Dockerfile.dev ./client 
 
 script:
-    - docker run -e CI=true oresthazda/fibonacci-client-test yarn test
+    - docker run -e CI=true $DOCKER_ID/fibonacci-client-test yarn test
 
 
 after_success:
-    - docker build -t oresthazda/fibonacci-client ./client
-    - docker build -t oresthazda/fibonacci-server ./server
-    - docker build -t oresthazda/fibonacci-worker ./worker
-    - docker build -t oresthazda/fibonacci-nginx ./nginx
+    - docker build -t $DOCKER_ID/fibonacci-client ./client
+    - docker build -t $DOCKER_ID/fibonacci-server ./server
+    - docker build -t $DOCKER_ID/fibonacci-worker ./worker
+    - docker build -t $DOCKER_ID/fibonacci-nginx ./nginx
 
     # Login to docker-hub
     - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
     # Push images to docker-hub
-    - docker push oresthazda/fibonacci-client
-    - docker push oresthazda/fibonacci-server
-    - docker push oresthazda/fibonacci-worker
-    - docker push oresthazda/fibonacci-nginx
+    - docker push $DOCKER_ID/fibonacci-client
+    - docker push $DOCKER_ID/fibonacci-server
+    - docker push $DOCKER_ID/fibonacci-worker
+    - docker push $DOCKER_ID/fibonacci-nginx
+
+deploy:
+    provider: elasticbeanstalk
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+    app: "fibonacci-saas"
+    env: "FibonacciSaas-env"
+    region: "us-east-1" 
+    bucket_name: "elasticbeanstalk-us-east-1-888433145158"
+    on:
+        branch: master
