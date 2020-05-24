@@ -1,0 +1,26 @@
+language: node_js
+node_js:
+    - 12
+services:
+    - docker
+
+before_install:
+    - docker build -t oresthazda/fibonacci-client-test -f ./client/Dockerfile.dev ./client 
+
+script:
+    - docker run -e CI=true oresthazda/fibonacci-client-test yarn test
+
+
+after_success:
+    - docker build -t oresthazda/fibonacci-client ./client
+    - docker build -t oresthazda/fibonacci-server ./server
+    - docker build -t oresthazda/fibonacci-worker ./worker
+    - docker build -t oresthazda/fibonacci-nginx ./nginx
+
+    # Login to docker-hub
+    - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+    # Push images to docker-hub
+    - docker push oresthazda/fibonacci-client
+    - docker push oresthazda/fibonacci-server
+    - docker push oresthazda/fibonacci-worker
+    - docker push oresthazda/fibonacci-nginx
