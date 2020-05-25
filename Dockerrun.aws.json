@@ -9,9 +9,9 @@
       "memory": 128
     },
     {
-      "name": "server",
+      "name": "api",
       "image": "oresthazda/fibonacci-server",
-      "hostname": "server",
+      "hostname": "api",
       "essential": false,
       "memory": 128
     },
@@ -33,7 +33,7 @@
           "containerPort": 80
         }
       ],
-      "links": ["client", "server"]
+      "links": ["client", "api"]
     }
   ]
 }
